@@ -34,4 +34,10 @@ export const routes: Routes = [
     redirectTo: 'stato-servizi',
     pathMatch: 'full',
   },
+
+  // Percorso per personale ospedaliero
+  {
+    path: 'personale-ps',
+    loadComponent: () => import('./features/personale-ps/personale-ps').then((m) => m.PersonalePs),
+  }
 ];
