@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Button } from 'primeng/button';
 import { DatePicker } from 'primeng/datepicker';
 import { Fieldset } from 'primeng/fieldset';
@@ -7,6 +7,8 @@ import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
 import { Select } from 'primeng/select';
 import { Textarea } from 'primeng/textarea';
+import { PersonaleManager } from '../../core/Personale/personale-manager';
+import { debounceTime, first, map, of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'his-personale-ps',
@@ -26,7 +28,22 @@ import { Textarea } from 'primeng/textarea';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PersonalePs {
+  readonly #personaleManager = inject(PersonaleManager);
   readonly maxDate = new Date();
+
+  // Funzione di controllo esistenza username
+  checkUsernameExists = (control: AbstractControl) => {
+    const username = control.value;
+
+    if(!username){
+      return of(null)
+    }
+
+    const check = of(username).pipe(debounceTime(300), switchMap(nome => this.#personaleManager.checkUsernameExists(nome)), map(esiste => esiste ? { usernameDuplicato: true } : null), first() );
+
+    return check;
+  };
+
   readonly sexOption = [
     {
       code: 'M',
@@ -68,7 +85,7 @@ export class PersonalePs {
       username: [
         '', 
         [Validators.required],
-        []
+        [this.checkUsernameExists]
       ],
       password: ['', Validators.required],
       occupazione: ['', [Validators.required]]
