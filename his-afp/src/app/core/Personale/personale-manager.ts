@@ -1,36 +1,74 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Personale } from './Personale.model';
-import { Router } from '@angular/router';
-import { debounceTime, of } from 'rxjs';
-
+import { User, UserRole } from './Personale.model';
+import { catchError, map, Observable, of } from 'rxjs';
+import { APIResponse } from '../models/APIResponse.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PersonaleManager {
-  timer_id = signal<number>(-1);
   #http = inject(HttpClient);
-  readonly #router = inject(Router);
-  #listaPS = signal<Personale[]>([
-    {
-      id: '1',
-      anagrafica: { nome: 'Mario', cognome: 'Rossi', dataNascita: '1990-01-01', codiceFiscale: 'RSSMRA90A01H501W', sesso: 'M' },
-      registrazione: { username: 'mario.rossi', password: 'password123', occupazione: 'Med' }
-    }
-  ]);
+
+
+  #listaPS = signal<User[]>([]);
+  readonly listaPS = this.#listaPS.asReadonly();
+
+  //Recupera lo staff dal DB
+  public fetchStaff() {
+    this.#http.get<APIResponse<User[]>>(`api/users`).subscribe({
+      next: (res) => {
+        this.#listaPS.set(res.data);
+      },
+      error: (err) => {
+        console.error('Errore durante il fetch dello staff:', err);
+      },
+    });
+  }
+
+  // Aggiunge un nuovo operatore sanitario
+  public addNewOperator(nuovoUtente: User) {
+    this.#http
+      .post<APIResponse<User>>(`api/users`, nuovoUtente)
+      .subscribe({
+        next: (res) => {
+          this.#listaPS.update((lista) => [...lista, res.data]);
+        },
+        error: (err) => {
+          console.error("Errore durante la creazione dell'operatore: ", err);
+        },
+      });
+  }
+
+  // Aggiorna un ruolo di Utente
+  public modifyOperator(id: number, nuovoRuolo: UserRole) {
+    this.#http
+      .patch<APIResponse<User>>(`api/users/${id}/editrole`, { role: nuovoRuolo })
+      .subscribe({
+        next: (res) => {
+          this.#listaPS.update((lista) =>
+          lista.map((u) => (u.id === id ? { ...u, role: res.data.role} : u))
+          );
+        },
+        error: (err) => {
+          console.error("Errore durante la modifica del ruolo dell'operatore: ", err);
+        },
+      });
+  }
 
 
 
+  public checkUsernameExists(username: string): Observable<boolean> {
+    if (!username.trim()) return of(false);
 
-
-
-  public checkUsernameExists(username: string) {
-    const listaPS = this.#listaPS();
-    const exists = listaPS.some(dipendente => 
-      dipendente.registrazione.username.toLowerCase() === username.toLowerCase()
-    );
-    
-    return of(exists);
+    return this.#http
+      .get<APIResponse<{ available: boolean}>>(`api/users/check/${username}`)
+      .pipe(
+        map((res) => {
+          return res.data ? !res.data.available : false;
+        }),
+        catchError(() => of(false))
+      );
   }
 }

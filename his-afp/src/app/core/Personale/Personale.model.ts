@@ -1,21 +1,16 @@
-export type RuoloAziendale = 'Med' | 'Inf' | 'Amm'
+export type UserRole = 'DOC' | 'INF' | 'AMM'
 
-export interface Personale{
-    id: string;
-    
-    anagrafica: {
-    nome: string;
-    cognome: string;
-    dataNascita: string;
-    codiceFiscale: string;
-    sesso: string;
-    };
-    
-    registrazione: {
-        username: string;
-        password: string;
-        occupazione: RuoloAziendale;
-    };
+export interface User {
+    id: number;
+    username: string;
+    password?: string;
+    role: UserRole;
+    isActive?: boolean;
+};
 
-
-}
+// Mappatura per mostrare più "leggibili" le etichette nel DB
+export const UserRoleLabel: Record<UserRole, string> = {
+    DOC: 'Medico',
+    INF: 'Infermiere',
+    AMM: 'Amministrativo'
+};
