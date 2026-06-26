@@ -22,9 +22,9 @@ export const checkUsernameAvailabilityFn = catchAsync(async (req, res) => {
 export const createUserFn = catchAsync(async (req, res, next) => {
 	const {username, password, role} = req.body;
 	const hashedPassword = await bcrypt.hash(password, 12);
-	const query = `INSERT INTO users (username, password, role)
-                   VALUES ($1, $2, $3)
-                   RETURNING id, username, role`;
+	const query = `INSERT INTO users (username, password, role, is_active)
+                   VALUES ($1, $2, $3, true)
+                   RETURNING id, username, role, is_active AS "isActive"`;
 	const result = await pool.query(query, [username, hashedPassword, role]);
 	res.status(201).json({status: 'success', data: result.rows[0]});
 });

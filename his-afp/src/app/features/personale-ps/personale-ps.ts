@@ -6,7 +6,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { SelectModule } from 'primeng/select';
 import { PersonaleManager } from '../../core/Personale/personale-manager';
-import { catchError, debounceTime, first, map, of, switchMap, timer } from 'rxjs';
+import { catchError, first, map, of, switchMap, timer } from 'rxjs';
 import { User } from '../../core/Personale/Personale.model';
 
 @Component({
@@ -41,15 +41,32 @@ export class PersonalePs implements OnInit {
 
   //Funzione per aprire il dialog di inserimento di un nuovo operatore
   apriPerNuovo() {
-    this.personale.reset();
     this.operatoreInModifica.set(null);
+    this.personale.reset();
+
+    this.personale.get('username')?.enable();
+    this.personale.get('password')?.enable();
+
+    this.personale.get('username')?.setValidators([Validators.required]);
+    this.personale.get('password')?.setValidators([Validators.required]);
+
+    this.personale.updateValueAndValidity();
     this.isDialogVisible.set(true);
   }
 
   //Funzione per aprire il dialog di modifica di un operatore
-  apriPerModifica(operatore: User) {
-    this.operatoreInModifica.set(operatore);
-    this.personale.patchValue(operatore);
+  apriPerModifica(utente: User) {
+    this.operatoreInModifica.set(utente);
+    this.personale.reset();
+
+    this.personale.patchValue({
+      username: utente.username,
+      role: utente.role
+    });
+
+    this.personale.get('username')?.disable();
+    this.personale.get('password')?.disable();
+
     this.isDialogVisible.set(true);
   }
 
