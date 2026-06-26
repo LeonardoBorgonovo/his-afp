@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { User, UserRole } from './Personale.model';
 import { catchError, map, Observable, of } from 'rxjs';
 import { APIResponse } from '../models/APIResponse.model';
-import { environment } from '../../../environments/environment';
+import { isActive } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -70,5 +70,54 @@ export class PersonaleManager {
         }),
         catchError(() => of(false))
       );
+  }
+
+  public deleteOperator(id: number) {
+    this.#http
+      .delete<APIResponse<User>>(`api/users/${id}`)
+      .subscribe({
+        next: (res) => {
+          if (res.status === 'success'){
+            this.#listaPS.update((lista) => lista.filter((u) => u.id !== id));
+          }
+        },
+        error: (err) => {
+          console.error("Errore durante la cancellazione definitiva dell'operatore: ", err);
+        },
+      });
+  }
+
+  public activateOperator(id: number) {
+    this.#http
+      .patch<APIResponse<User>>(`api/users/${id}/activate`, {} )
+      .subscribe({
+        next: (res) => {
+          if(res.status === 'success') {
+            this.#listaPS.update((lista) =>
+              lista.map((u) => (u.id === id ? { ...u, isActive: true} : u))
+            );
+          }
+        },
+        error: (err) => {
+          console.error("Errore durante la riattivazione dell'operatore: ", err);
+        },
+      });
+  }
+
+  public deactivateOperator(id: number) {
+    this.#http
+      .patch<APIResponse<User>>(`api/users/${id}/deactivate`, {} )
+      .subscribe({
+        next: (res) => {
+          if(res.status === 'success') {
+            this.#listaPS.update((lista) =>
+              lista.map((u) => (u.id === id ? { ...u, isActive: false} : u))
+            );
+          }
+        },
+        error: (err) => {
+          console.error("Errore durante la disattivazione dell'operatore: ", err);
+        },
+      });
   }
 }

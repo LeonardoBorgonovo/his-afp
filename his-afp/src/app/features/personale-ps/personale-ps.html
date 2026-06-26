@@ -1,6 +1,6 @@
-<div class="p-4">
+<div style="display: flex !important; flex-direction: column !important; gap: 2rem !important; width: 100% !important;" class="p-4">
   
-  <div style="display: flex !important; justify-content: space-between !important; align-items: center !important; width: 100% !important;" class="mb-5 pb-3 border-bottom-1 surface-border">
+  <div style="display: flex !important; justify-content: space-between !important; align-items: center !important; width: 100% !important;" class="pb-3 border-bottom-1 surface-border">
     <h2 style="margin: 0 !important;" class="font-bold text-2xl">Gestione Personale Sanitario</h2>
     <p-button 
       label="Aggiungi Operatore" 
@@ -9,59 +9,128 @@
     </p-button>
   </div>
 
-  <div class="card shadow-1 border-round surface-card overflow-hidden">
-    <table class="w-full border-collapse border-none text-left">
-      <thead>
-        <tr class="bg-gray-100 surface-100 text-800 font-semibold">
-          <th class="p-3 border-b">ID</th>
-          <th class="p-3 border-b">Username</th>
-          <th class="p-3 border-b">Ruolo</th>
-          <th class="p-3 border-b text-center">Stato</th>
-          <th class="p-3 border-b text-center">Azioni</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (utente of personaleManager.listaPS(); track utente.id) {
-          <tr class="hover:surface-50 border-b-1 surface-border">
-            <td class="p-3">{{ utente.id }}</td>
-            <td class="p-3 font-medium">{{ utente.username }}</td>
-            <td class="p-3">
-              @if (utente.role === 'DOC') { Medico }
-              @else if (utente.role === 'INF') { Infermiere }
-              @else if (utente.role === 'AMM') { Amministrativo }
-            </td>
-            <td class="p-3 text-center">
-              @if (utente.isActive !== false) {
-                <span class="inline-flex px-2 py-1 border-round bg-green-50 text-green-700 font-bold text-xs border-1 border-green-200">Attivo</span>
-              } @else {
-                <span class="inline-flex px-2 py-1 border-round bg-red-50 text-red-700 font-bold text-xs border-1 border-red-200">Disattivato</span>
-              }
-            </td>
-            <td class="p-3 text-center">
-              <p-button 
-                icon="pi pi-pencil" 
-                [rounded]="true" 
-                [text]="true" 
-                severity="secondary"
-                (onClick)="apriPerModifica(utente)">
-              </p-button>
-            </td>
-          </tr>
-        } @empty {
-          <tr>
-            <td colspan="5" class="p-5 text-center text-gray-500 italic">
-              Nessun operatore sanitario registrato nel sistema.
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
+  <div style="display: flex !important; flex-direction: row !important; gap: 1.5rem !important; width: 100% !important; align-items: flex-start !important;">
+
+    <div style="flex: 1 1 0% !important; min-width: 0 !important;">
+      <h3 class="text-xl font-semibold text-green-700 mb-3 flex align-items-center gap-2">
+        <i class="pi pi-check-circle"></i> Personale Sanitario Attivo
+      </h3>
+      <div class="card shadow-1 border-round surface-card overflow-hidden border-1 surface-border">
+        <table class="w-full border-collapse border-none text-left">
+          <thead>
+            <tr class="bg-gray-100 surface-100 text-800 font-semibold">
+              <th class="p-3 border-b">ID</th>
+              <th class="p-3 border-b">Username</th>
+              <th class="p-3 border-b">Ruolo</th>
+              <th class="p-3 border-b text-center">Stato</th>
+              <th class="p-3 border-b text-center">Azioni</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (utente of operatoriAttivi(); track utente.id) {
+              <tr class="hover:surface-50 border-b-1 surface-border">
+                <td class="p-3">{{ utente.id }}</td>
+                <td class="p-3 font-medium">{{ utente.username }}</td>
+                <td class="p-3">
+                  @if (utente.role === 'DOC') { Medico }
+                  @else if (utente.role === 'INF') { Infermiere }
+                  @else if (utente.role === 'AMM') { Amministrativo }
+                </td>
+                <td class="p-3 text-center">
+                  <span class="inline-flex px-2 py-1 border-round bg-green-50 text-green-700 font-bold text-xs border-1 border-green-200">Attivo</span>
+                </td>
+                <td class="p-3" style="display: flex !important; justify-content: center !important; align-items: center !important; gap: 0.5rem !important;">
+                  <p-button 
+                    icon="pi pi-pencil" 
+                    [rounded]="true" 
+                    [text]="true" 
+                    severity="secondary"
+                    (onClick)="apriPerModifica(utente)">
+                  </p-button>
+                  <p-button 
+                    icon="pi pi-ban" 
+                    [rounded]="true" 
+                    [text]="true" 
+                    severity="warn"
+                    (onClick)="disattivaOperatore(utente.id)">
+                  </p-button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="p-5 text-center text-gray-500 italic">
+                  Nessun operatore sanitario attivo nel sistema.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="flex: 1 1 0% !important; min-width: 0 !important;">
+      <h3 class="text-xl font-semibold text-red-700 mb-3 flex align-items-center gap-2">
+        <i class="pi pi-trash"></i> Cestino / Personale Disattivato
+      </h3>
+      <div class="card shadow-1 border-round surface-card overflow-hidden border-1 surface-border">
+        <table class="w-full border-collapse border-none text-left">
+          <thead>
+            <tr class="bg-gray-100 surface-100 text-800 font-semibold">
+              <th class="p-3 border-b">ID</th>
+              <th class="p-3 border-b">Username</th>
+              <th class="p-3 border-b">Ruolo</th>
+              <th class="p-3 border-b text-center">Stato</th>
+              <th class="p-3 border-b text-center">Azioni</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (utente of operatoriInattivi(); track utente.id) {
+              <tr class="hover:surface-50 border-b-1 surface-border bg-gray-50">
+                <td class="p-3 text-500">{{ utente.id }}</td>
+                <td class="p-3 text-500 italic line-through">{{ utente.username }}</td>
+                <td class="p-3 text-500">
+                  @if (utente.role === 'DOC') { Medico }
+                  @else if (utente.role === 'INF') { Infermiere }
+                  @else if (utente.role === 'AMM') { Amministrativo }
+                </td>
+                <td class="p-3 text-center">
+                  <span class="inline-flex px-2 py-1 border-round bg-red-50 text-red-700 font-bold text-xs border-1 border-red-200">Disattivato</span>
+                </td>
+                <td class="p-3" style="display: flex !important; justify-content: center !important; align-items: center !important; gap: 0.5rem !important;">
+                  <p-button 
+                    icon="pi pi-refresh" 
+                    [rounded]="true" 
+                    [text]="true" 
+                    severity="success"
+                    (onClick)="attivaOperatore(utente.id)">
+                  </p-button>
+                  <p-button 
+                    icon="pi pi-trash" 
+                    [rounded]="true" 
+                    [text]="true" 
+                    severity="danger"
+                    (onClick)="eliminaOperatore(utente.id)">
+                  </p-button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="p-4 text-center text-gray-400 italic">
+                  Il cestino è vuoto.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 </div>
 
 <p-dialog 
-  [header]="operatoreInModifica() ? 'Modifica Ruolo Operatore' : 'Registra Nuovo Operatore'" 
   [(visible)]="isDialogVisible" 
+  [header]="operatoreInModifica() ? 'Modifica Ruolo Operatore' : 'Registra Nuovo Operatore'" 
   [modal]="true" 
   [style]="{ width: '450px' }" 
   [draggable]="false" 

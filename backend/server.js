@@ -22,7 +22,8 @@ import {
 	createUserFn,
 	deactivateUserFn,
 	editUserRoleFn,
-	retrieveAllStaffFn
+	retrieveAllStaffFn,
+	deleteUserFn
 } from "./services/staff.js";
 
 // --- CONFIGURAZIONE SERVER EXPRESS ---
@@ -80,6 +81,7 @@ app.post('/users', authenticateTokenFn, createUserFn);
 app.patch('/users/:id/deactivate', authenticateTokenFn, deactivateUserFn);
 app.patch('/users/:id/activate', authenticateTokenFn, activateUserFn);
 app.patch('/users/:id/editrole', authenticateTokenFn, editUserRoleFn);
+app.delete('/users/:id', authenticateTokenFn, deleteUserFn)
 
 // --- ROTTA NON TROVATA ---
 app.all(/(.*)/, (req, res, next) => {

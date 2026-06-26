@@ -59,3 +59,16 @@ export const editUserRoleFn = catchAsync(async (req, res, next) => {
 	if (result.rowCount === 0) return next(new AppError('Operatore non trovato', 404));
 	res.status(200).json({status: 'success', data: result.rows[0]});
 });
+
+export const deleteUserFn = catchAsync(async (req, res, next) => {
+	try {	
+		const {id} = req.params;
+		const result = await pool.query(`DELETE FROM users
+										WHERE id = $1`, [id]);
+		
+		return res.status(200).json({
+			status: "success",
+			message: "Operatore cancellato con successo dal database."
+		});
+	} catch(error) { next(error); }
+});

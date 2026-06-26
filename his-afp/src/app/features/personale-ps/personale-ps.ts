@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -6,7 +6,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { SelectModule } from 'primeng/select';
 import { PersonaleManager } from '../../core/Personale/personale-manager';
-import { catchError, debounceTime, first, map, of, switchMap } from 'rxjs';
+import { catchError, debounceTime, first, map, of, switchMap, timer } from 'rxjs';
 import { User } from '../../core/Personale/Personale.model';
 
 @Component({
@@ -31,6 +31,9 @@ export class PersonalePs implements OnInit {
   isDialogVisible = signal<boolean>(false);
   operatoreInModifica = signal<User | null>(null);
 
+  operatoriAttivi = computed(() => this.personaleManager.listaPS().filter( u => u.isActive));
+  operatoriInattivi = computed(() => this.personaleManager.listaPS().filter( u => !u.isActive))
+
   // Richiami gli elementi nel DB
   ngOnInit(): void {
     this.personaleManager.fetchStaff();
@@ -48,6 +51,20 @@ export class PersonalePs implements OnInit {
     this.operatoreInModifica.set(operatore);
     this.personale.patchValue(operatore);
     this.isDialogVisible.set(true);
+  }
+
+  disattivaOperatore(id:number): void {
+    this.personaleManager.deactivateOperator(id);
+  }
+
+  attivaOperatore(id:number): void {
+    this.personaleManager.activateOperator(id);
+  }
+
+  eliminaOperatore(id:number): void {
+    if (confirm("Sei sicuro di voler eliminare definitivamente questo operatore?")) {
+      this.personaleManager.deleteOperator(id);
+    }
   }
 
   onSubmit() {
@@ -75,18 +92,16 @@ export class PersonalePs implements OnInit {
   checkUsernameExists = (control: AbstractControl) => {
     const username = control.value;
 
-    if(!username || username.trim()) {
+    if(!username || !username.trim()) {
       return of(null);
     }
 
-    const check = of(username).pipe(
-      debounceTime(300), 
-      switchMap(nome => this.personaleManager.checkUsernameExists(nome)), 
-      map(esiste => esiste ? { usernameDuplicato: true } : null), 
-      first(), 
-      catchError(() => of(null)) );
-
-    return check;
+    return timer(300).pipe(
+      switchMap(() => this.personaleManager.checkUsernameExists(username.trim())),
+      map(esiste => (esiste ? { usernameDuplicato: true } : null)),
+      first(),
+      catchError(() => of(null))
+    );
   };
 
   checkFormControl(controlName: string): boolean {
@@ -106,7 +121,7 @@ export class PersonalePs implements OnInit {
 
   readonly #fb = inject(FormBuilder);
   personale = this.#fb.group({
-    username: ['', [Validators.required], [(control) => this.checkUsernameExists(control)]],
+    username: ['', [Validators.required], [this.checkUsernameExists]],
     password: ['', [Validators.required]],
     role: ['', [Validators.required]]
   });
