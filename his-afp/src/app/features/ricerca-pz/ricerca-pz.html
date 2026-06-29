@@ -94,15 +94,15 @@
                 <th style="color: #4b5563; font-weight: 600; background-color: #f9fafb; padding: 1rem;">Data di Nascita</th>
                 <th style="color: #4b5563; font-weight: 600; background-color: #f9fafb; padding: 1rem;">Sesso</th>
                 <th style="color: #4b5563; font-weight: 600; background-color: #f9fafb; padding: 1rem;">Codice Fiscale</th>
-                <th style="background-color: #f9fafb; padding: 1rem; width: 8rem; text-align: right;">Azione</th>
+                <th style="background-color: #f9fafb; padding: 1rem; width: 8rem; text-align: right;"></th>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-paziente>
               <tr style="border-bottom: 1px solid #f3f4f6;">
                 <td style="padding: 1rem;"><strong style="color: #111827;">{{ paziente.cognome }}</strong> {{ paziente.nome }}</td>
-                <td style="padding: 1rem; color: #4b5563;">{{ paziente.dataNascita }}</td>
+                <td style="padding: 1rem; color: #4b5563;">{{ paziente.data_nascita | date: 'dd/MM/yyyy' }}</td>
                 <td style="padding: 1rem;"><span style="background: #eff6ff; color: #1e40af; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">{{ paziente.sex }}</span></td>
-                <td style="padding: 1rem;"><code style="background-color: #f3f4f6; padding: 0.25rem 0.5rem; border-radius: 4px; font-family: monospace; color: #1f2937;">{{ paziente.codiceFiscale }}</code></td>
+                <td style="padding: 1rem;"><code style="background-color: #f3f4f6; padding: 0.25rem 0.5rem; border-radius: 4px; font-family: monospace; color: #1f2937;">{{ paziente.codice_fiscale }}</code></td>
                 <td style="padding: 1rem; text-align: right;">
                   <button pButton 
                           label="Seleziona" 

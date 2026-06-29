@@ -111,9 +111,11 @@ export class PatientManager {
   }
 
   public searchPatientByCF(codiceFiscale: string) {
+    const CFpulito = codiceFiscale.trim().toUpperCase();
+
     this.#http
-      .get<APIResponse<PazienteDTO[]>>(`/api/admissions`, {
-        params: {cf: codiceFiscale}
+      .get<APIResponse<PazienteDTO[]>>(`/api/patients/search`, {
+        params: {cf: CFpulito}
       })
       .subscribe({
         next: (res) => {
@@ -135,15 +137,16 @@ export class PatientManager {
 
   public searchPatientByAnag(nome: string, cognome: string, dataNascita:string) {
     this.#http
-      .get<APIResponse<PazienteDTO[]>>(`/api/admissions`, {
+      .get<APIResponse<PazienteDTO[]>>(`/api/patients/search`, {
         params: {
-          nome: nome,
-          cognome: cognome,
-          dataNascita: dataNascita 
+          nome: nome.trim(),
+          cognome: cognome.trim(),
+          data_nascita: dataNascita 
         }
       })
       .subscribe({
         next: (res) => {
+          this.giaCercato.set(true);
           if (res.status === 'success' && res.data) {
             this.risultatiRicerca.set(res.data);
           } else {
@@ -152,6 +155,7 @@ export class PatientManager {
         },
         error: (err) => {
           console.error("Errore durante la ricerca nel DB tramite nome, cognome e dataNascita: ", err);
+          this.giaCercato.set(true);
           this.risultatiRicerca.set([]);
         } 
       });

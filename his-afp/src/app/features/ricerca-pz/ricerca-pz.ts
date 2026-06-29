@@ -33,9 +33,19 @@ export class RicercaPz {
     }
   }
 
-  public onSearchByAnag(nome: string, cognome: string, dataNascita: string): void {
+  public onSearchByAnag(nome: string, cognome: string, dataNascita: any): void {
     if(nome && cognome && dataNascita){
-      this.patientManager.searchPatientByAnag(nome, cognome, dataNascita);
+
+      let dataFormattata = dataNascita;
+      if (dataNascita instanceof Date) {
+        const anno = dataNascita.getFullYear();
+        const mese = String(dataNascita.getMonth() + 1).padStart(2, '0');
+        const giorno = String(dataNascita.getDate()).padStart(2, '0');
+
+        dataFormattata = `${anno}-${mese}-${giorno}`;
+      }
+
+      this.patientManager.searchPatientByAnag(nome, cognome, dataFormattata);
     }
   }
 
