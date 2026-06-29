@@ -8,12 +8,8 @@ export const routes: Routes = [
   {
     path: 'accettazione-pz',
     loadComponent: () =>
-      import('./features/accettazione-pz/accettazione-pz').then((m) => m.AccettazionePz),
+      import('./features/ricerca-pz/ricerca-pz').then((m) => m.RicercaPz),
   },
-  // {
-  //   path: 'modifica-pz',
-  //   loadComponent: () => import('./features/modifica-pz/modifica-pz').then((m) => m.ModificaPz),
-  // },
   {
     // /modifica-pz?id=2
     path: 'modifica-pz/:patientId',

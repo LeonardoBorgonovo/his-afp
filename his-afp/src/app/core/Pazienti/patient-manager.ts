@@ -15,6 +15,10 @@ export class PatientManager {
   #listaPZ = signal<Paziente[]>([]);
   #listaPZFiltered = signal<Paziente[]>(this.#listaPZ());
   listaPZ = this.#listaPZFiltered.asReadonly();
+  risultatiRicerca = signal<PazienteDTO[]>([]);
+  pazienteSelezionato = signal<PazienteDTO | null>(null);
+  attivaNuovoPaziente = signal<boolean>(false);
+  giaCercato = signal<boolean>(false);
 
   // constructor() {
   //   this.fetchPazienti();
@@ -104,5 +108,56 @@ export class PatientManager {
       return fullName.includes(name.toLowerCase());
     });
     this.#listaPZFiltered.set(filtered);
+  }
+
+  public searchPatientByCF(codiceFiscale: string) {
+    this.#http
+      .get<APIResponse<PazienteDTO[]>>(`/api/admissions`, {
+        params: {cf: codiceFiscale}
+      })
+      .subscribe({
+        next: (res) => {
+          this.giaCercato.set(true);
+
+          if (res.status === 'success' && res.data) {
+            this.risultatiRicerca.set(res.data);
+          } else {
+            this.risultatiRicerca.set([])
+          }
+        },
+        error: (err) => {
+          this.giaCercato.set(true);
+          console.error("Errore durante la ricerca nel DB tramite CF: ", err);
+          this.risultatiRicerca.set([]);
+        }
+      });
+  }
+
+  public searchPatientByAnag(nome: string, cognome: string, dataNascita:string) {
+    this.#http
+      .get<APIResponse<PazienteDTO[]>>(`/api/admissions`, {
+        params: {
+          nome: nome,
+          cognome: cognome,
+          dataNascita: dataNascita 
+        }
+      })
+      .subscribe({
+        next: (res) => {
+          if (res.status === 'success' && res.data) {
+            this.risultatiRicerca.set(res.data);
+          } else {
+            this.risultatiRicerca.set([]);
+          }
+        },
+        error: (err) => {
+          console.error("Errore durante la ricerca nel DB tramite nome, cognome e dataNascita: ", err);
+          this.risultatiRicerca.set([]);
+        } 
+      });
+  }
+  
+  public selectPatient(paziente: PazienteDTO) {
+    this.pazienteSelezionato.set(paziente);
   }
 }
