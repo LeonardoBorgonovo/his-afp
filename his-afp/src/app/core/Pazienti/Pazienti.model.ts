@@ -18,9 +18,9 @@ export interface PazienteDTO {
   patologiaCode: string;
   nome: string;
   cognome: string;
-  dataNascita: string;
+  data_nascita: string;
   sex: string;
-  codiceFiscale: string;
+  codice_fiscale: string;
   patologiaDescrizione: string;
   coloreCode: string;
   coloreHex: string;
@@ -38,8 +38,8 @@ export interface PatientAdmission {
   anagrafica: {
     nome: string;
     cognome: string;
-    dataNascita: string;
-    codiceFiscale: string;
+    data_nascita: string;
+    codice_fiscale: string;
     sesso: string;
   };
   sanitaria: {

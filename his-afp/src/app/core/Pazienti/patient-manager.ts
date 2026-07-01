@@ -87,7 +87,7 @@ export class PatientManager {
       codiceColore: pz.coloreCode,
       note: pz.noteTriage,
       patologia: pz.patologiaCode,
-      eta: this.calcolaEta(pz.dataNascita),
+      eta: this.calcolaEta(pz.data_nascita),
     };
   }
 
@@ -178,8 +178,8 @@ export class PatientManager {
       id: 0,
       nome: datiRicerca?.nome || '',
       cognome: datiRicerca?.cognome || '',
-      codiceFiscale: datiRicerca?.cf || '',
-      dataNascita: datiRicerca?.dataNascita || '',
+      codice_fiscale: datiRicerca?.cf || '',
+      data_nascita: datiRicerca?.dataNascita || '',
       sex: ''
     });
 

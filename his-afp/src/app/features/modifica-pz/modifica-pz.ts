@@ -92,8 +92,8 @@ export class ModificaPz {
             anagrafica: {
               nome: data.nome,
               cognome: data.cognome,
-              dataNascita: formatDate(data.dataNascita, 'dd/MM/yyyy', 'en'),
-              codiceFiscale: data.codiceFiscale,
+              dataNascita: formatDate(data.data_nascita, 'dd/MM/yyyy', 'en'),
+              codiceFiscale: data.codice_fiscale,
               sesso: data.sex,
             },
             sanitaria: {

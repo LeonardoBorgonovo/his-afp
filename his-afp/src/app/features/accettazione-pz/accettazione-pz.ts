@@ -63,6 +63,12 @@ export class AccettazionePz {
       modArrivo: ['', [Validators.required]],
       noteTriage: ['', [Validators.required, Validators.maxLength(500)]],
     }),
+    residenza: this.#fb.group({
+      via: ['', [Validators.required]],
+      civico: ['', [Validators.required]],
+      comune: ['', [Validators.required]],
+      provincia: ['', [Validators.required]],
+    }),
   });
 
   constructor() {
@@ -72,12 +78,12 @@ export class AccettazionePz {
       if(pSelected) {
         const anagraficaGroup = this.paziente.get('anagrafica');
 
-        const dataConvertita = pSelected.dataNascita ? new Date(pSelected.dataNascita) : null;
+        const dataConvertita = pSelected.data_nascita ? new Date(pSelected.data_nascita) : null;
 
         anagraficaGroup?.patchValue({
           nome: pSelected.nome || '',
           cognome: pSelected.cognome || '',
-          codiceFiscale: pSelected.codiceFiscale || '',
+          codiceFiscale: pSelected.codice_fiscale || '',
           dataNascita: dataConvertita || '',
           sesso: pSelected.sex || ''
         });
@@ -114,14 +120,43 @@ export class AccettazionePz {
   onSubmit() {
     if (this.paziente.valid) {
       const formValue = this.paziente.getRawValue();
-
+      
+      // 1. Gestiamo la conversione della data da oggetto Date a stringa YYYY-MM-DD
+      let dataStringa = '';
       if (formValue.anagrafica.dataNascita instanceof Date) {
-        formValue.anagrafica.dataNascita = (formValue.anagrafica.dataNascita as Date)
-        .toISOString()
-        .split('T')[0];
+        dataStringa = formValue.anagrafica.dataNascita.toISOString().split('T')[0];
+      } else if (typeof formValue.anagrafica.dataNascita === 'string') {
+        dataStringa = formValue.anagrafica.dataNascita;
       }
-      console.log("Payload pronto: ", formValue);
-      this.patientManager.admitPatient(formValue as PatientAdmission);
+
+      // 2. Costruiamo l'oggetto finale rispettando l'interfaccia PatientAdmission
+      // Sostituiamo i possibili valori null con stringhe vuote per garantire la rigidezza dei tipi
+      const payload: PatientAdmission = {
+        anagrafica: {
+          nome: formValue.anagrafica.nome ?? '',
+          cognome: formValue.anagrafica.cognome ?? '',
+          data_nascita: dataStringa,
+          codice_fiscale: formValue.anagrafica.codiceFiscale ?? '',
+          sesso: formValue.anagrafica.sesso ?? ''
+        },
+        sanitaria: {
+          patologia: formValue.sanitaria.patologia ?? '',
+          codiceColore: formValue.sanitaria.codiceColore ?? '',
+          modArrivo: formValue.sanitaria.modArrivo ?? '',
+          noteTriage: formValue.sanitaria.noteTriage ?? ''
+        },
+        // Se l'interfaccia la richiede ma nel form non c'è, passiamo i campi vuoti
+        residenza: {
+          via: '',
+          civico: '',
+          comune: '',
+          provincia: ''
+        }
+      };
+
+      console.log('Payload perfettamente tipizzato:', payload);
+      this.patientManager.admitPatient(payload);
+      
     } else {
       this.paziente.markAllAsTouched();
     }
