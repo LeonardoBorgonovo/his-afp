@@ -9,7 +9,7 @@ import { SelectModule } from 'primeng/select';
 import { Textarea } from 'primeng/textarea';
 import { Fieldset } from 'primeng/fieldset';
 import { PatientManager } from '../../core/Pazienti/patient-manager';
-import { PatientAdmission } from '../../core/Pazienti/Pazienti.model';
+
 
 @Component({
   selector: 'his-accettazione-pz',
@@ -62,13 +62,7 @@ export class AccettazionePz {
       codiceColore: ['', [Validators.required]],
       modArrivo: ['', [Validators.required]],
       noteTriage: ['', [Validators.required, Validators.maxLength(500)]],
-    }),
-    residenza: this.#fb.group({
-      via: ['', [Validators.required]],
-      civico: ['', [Validators.required]],
-      comune: ['', [Validators.required]],
-      provincia: ['', [Validators.required]],
-    }),
+    })
   });
 
   constructor() {
@@ -78,12 +72,12 @@ export class AccettazionePz {
       if(pSelected) {
         const anagraficaGroup = this.paziente.get('anagrafica');
 
-        const dataConvertita = pSelected.data_nascita ? new Date(pSelected.data_nascita) : null;
+        const dataConvertita = pSelected.dataNascita ? new Date(pSelected.dataNascita) : null;
 
         anagraficaGroup?.patchValue({
           nome: pSelected.nome || '',
           cognome: pSelected.cognome || '',
-          codiceFiscale: pSelected.codice_fiscale || '',
+          codiceFiscale: pSelected.codiceFiscale || '',
           dataNascita: dataConvertita || '',
           sesso: pSelected.sex || ''
         });
@@ -121,31 +115,26 @@ export class AccettazionePz {
     if (this.paziente.valid) {
       const formValue = this.paziente.getRawValue();
       
-      // 1. Gestiamo la conversione della data da oggetto Date a stringa YYYY-MM-DD
-      let dataStringa = '';
-      if (formValue.anagrafica.dataNascita instanceof Date) {
-        dataStringa = formValue.anagrafica.dataNascita.toISOString().split('T')[0];
-      } else if (typeof formValue.anagrafica.dataNascita === 'string') {
-        dataStringa = formValue.anagrafica.dataNascita;
-      }
+      // Gestione della data convertita in stringa YYYY-MM-DD
+      let dataStringa = typeof formValue.anagrafica.dataNascita === 'string' 
+        ? formValue.anagrafica.dataNascita 
+        : formValue.anagrafica.dataNascita?.toISOString().split('T')[0] || '';
 
-      // 2. Costruiamo l'oggetto finale rispettando l'interfaccia PatientAdmission
-      // Sostituiamo i possibili valori null con stringhe vuote per garantire la rigidezza dei tipi
-      const payload: PatientAdmission = {
+      // Questo payload riflette esattamente le aspettative di insertNewAdmissionFn
+      const payload = {
         anagrafica: {
           nome: formValue.anagrafica.nome ?? '',
           cognome: formValue.anagrafica.cognome ?? '',
-          data_nascita: dataStringa,
-          codice_fiscale: formValue.anagrafica.codiceFiscale ?? '',
+          dataNascita: dataStringa,
+          codiceFiscale: formValue.anagrafica.codiceFiscale ?? '',
           sesso: formValue.anagrafica.sesso ?? ''
         },
         sanitaria: {
           patologia: formValue.sanitaria.patologia ?? '',
-          codiceColore: formValue.sanitaria.codiceColore ?? '',
-          modArrivo: formValue.sanitaria.modArrivo ?? '',
-          noteTriage: formValue.sanitaria.noteTriage ?? ''
+          codiceColore: formValue.sanitaria.codiceColore ?? '', 
+          modArrivo: formValue.sanitaria.modArrivo ?? '',       
+          noteTriage: formValue.sanitaria.noteTriage ?? ''      
         },
-        // Se l'interfaccia la richiede ma nel form non c'è, passiamo i campi vuoti
         residenza: {
           via: '',
           civico: '',
@@ -154,11 +143,7 @@ export class AccettazionePz {
         }
       };
 
-      console.log('Payload perfettamente tipizzato:', payload);
       this.patientManager.admitPatient(payload);
-      
-    } else {
-      this.paziente.markAllAsTouched();
     }
   }
 }

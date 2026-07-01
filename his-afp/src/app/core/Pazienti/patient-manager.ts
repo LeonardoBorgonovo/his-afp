@@ -57,7 +57,8 @@ export class PatientManager {
       .post<APIResponse<PatientAdmissionRes>>(`api/admissions`, pz)
       .subscribe({
         next: (res) => {
-          this.#router.navigate([`/modifica-pz/${res.data.id}`]);
+          this.#router.navigate([`/lista-pz`]);
+          window.location.reload();
         },
         error: (err) => {
           console.error("Errore durante l'ammissione del paziente:", err);
@@ -87,7 +88,7 @@ export class PatientManager {
       codiceColore: pz.coloreCode,
       note: pz.noteTriage,
       patologia: pz.patologiaCode,
-      eta: this.calcolaEta(pz.data_nascita),
+      eta: this.calcolaEta(pz.dataNascita),
     };
   }
 
@@ -178,8 +179,8 @@ export class PatientManager {
       id: 0,
       nome: datiRicerca?.nome || '',
       cognome: datiRicerca?.cognome || '',
-      codice_fiscale: datiRicerca?.cf || '',
-      data_nascita: datiRicerca?.dataNascita || '',
+      codiceFiscale: datiRicerca?.cf || '',
+      dataNascita: datiRicerca?.dataNascita || '',
       sex: ''
     });
 
