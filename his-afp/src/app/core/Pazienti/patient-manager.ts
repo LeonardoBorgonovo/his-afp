@@ -66,7 +66,7 @@ export class PatientManager {
       });
   }
 
-  public updatePatientInfo(pzId: number, residenza: Pick<PatientAdmission, 'residenza'>) {
+  public updatePatientInfo(pzId: number, residenza: PatientAdmission['residenza']) {
     this.#http
       .patch<APIResponse<PatientAdmissionRes>>(`api/patients/${pzId}`, residenza)
       .subscribe({
