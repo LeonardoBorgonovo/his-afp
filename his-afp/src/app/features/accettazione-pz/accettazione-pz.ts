@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
 import { GestioneRisorse } from '../../core/Risorse/gestione-risorse';
 import { InputText } from 'primeng/inputtext';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -44,11 +44,12 @@ export class AccettazionePz {
   ];
 
   readonly #fb = inject(FormBuilder);
+
   paziente = this.#fb.group({
     anagrafica: this.#fb.group({
       nome: ['', [Validators.required]],
       cognome: ['', [Validators.required]],
-      dataNascita: ['', [Validators.required]],
+      dataNascita: [null as Date | string | null, [Validators.required]],
       codiceFiscale: [
         '',
         [Validators.required, Validators.pattern('[A-Z]{6}\\d{2}[A-Z]\\d{2}[A-Z]\\d{3}[A-Z]')],
@@ -64,11 +65,42 @@ export class AccettazionePz {
     }),
   });
 
+  constructor() {
+    effect(() => {
+      const pSelected = this.patientManager.pazienteSelezionato();
+
+      if(pSelected) {
+        const anagraficaGroup = this.paziente.get('anagrafica');
+
+        const dataConvertita = pSelected.dataNascita ? new Date(pSelected.dataNascita) : null;
+
+        anagraficaGroup?.patchValue({
+          nome: pSelected.nome || '',
+          cognome: pSelected.cognome || '',
+          codiceFiscale: pSelected.codiceFiscale || '',
+          dataNascita: dataConvertita || '',
+          sesso: pSelected.sex || ''
+        });
+
+        if (pSelected.id && pSelected.id !== 0) {
+          anagraficaGroup?.disable();
+        } else {
+          anagraficaGroup?.enable();
+        }
+
+      } else {
+        this.paziente.reset();
+        this.paziente.get('anagrafica')?.enable();
+      }
+    });
+  }
+
   checkFormControl(control: string) {
     const fc = this.paziente.get(control);
     // nome.invalid && (nome.touched || nome.dirty)
     return fc?.invalid && (fc.touched || fc.dirty);
   }
+
   checkFormControlError(control: string, err: string) {
     const fc = this.paziente.get(control);
 
@@ -78,10 +110,18 @@ export class AccettazionePz {
       return null;
     }
   }
+
   onSubmit() {
     if (this.paziente.valid) {
-      console.log(this.paziente.value);
-      this.patientManager.admitPatient(this.paziente.value as PatientAdmission);
+      const formValue = this.paziente.getRawValue();
+
+      if (formValue.anagrafica.dataNascita instanceof Date) {
+        formValue.anagrafica.dataNascita = (formValue.anagrafica.dataNascita as Date)
+        .toISOString()
+        .split('T')[0];
+      }
+      console.log("Payload pronto: ", formValue);
+      this.patientManager.admitPatient(formValue as PatientAdmission);
     } else {
       this.paziente.markAllAsTouched();
     }

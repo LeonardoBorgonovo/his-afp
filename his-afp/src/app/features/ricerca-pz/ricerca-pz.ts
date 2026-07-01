@@ -33,10 +33,10 @@ export class RicercaPz {
     }
   }
 
-  public onSearchByAnag(nome: string, cognome: string, dataNascita: any): void {
+  public onSearchByAnag(nome: string, cognome: string, dataNascita: Date | string): void {
     if(nome && cognome && dataNascita){
 
-      let dataFormattata = dataNascita;
+      let dataFormattata: string = '';
       if (dataNascita instanceof Date) {
         const anno = dataNascita.getFullYear();
         const mese = String(dataNascita.getMonth() + 1).padStart(2, '0');
@@ -50,6 +50,6 @@ export class RicercaPz {
   }
 
   public onSelectPatient(paziente: PazienteDTO): void {
-    this.patientManager.pazienteSelezionato.set(paziente);
+    this.patientManager.selectPatient(paziente);
   }
 }

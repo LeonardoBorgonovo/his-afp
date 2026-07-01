@@ -15,10 +15,12 @@ export class PatientManager {
   #listaPZ = signal<Paziente[]>([]);
   #listaPZFiltered = signal<Paziente[]>(this.#listaPZ());
   listaPZ = this.#listaPZFiltered.asReadonly();
+  
   risultatiRicerca = signal<PazienteDTO[]>([]);
-  pazienteSelezionato = signal<PazienteDTO | null>(null);
+  pazienteSelezionato = signal<Partial<PazienteDTO> | null>(null);
   attivaNuovoPaziente = signal<boolean>(false);
   giaCercato = signal<boolean>(false);
+  apriForm = signal<boolean>(false);
 
   // constructor() {
   //   this.fetchPazienti();
@@ -52,7 +54,7 @@ export class PatientManager {
 
   public admitPatient(pz: PatientAdmission) {
     this.#http
-      .post<APIResponse<PatientAdmissionRes>>(`${environment.apiUrl}/admissions`, pz)
+      .post<APIResponse<PatientAdmissionRes>>(`api/admissions`, pz)
       .subscribe({
         next: (res) => {
           this.#router.navigate([`/modifica-pz/${res.data.id}`]);
@@ -65,7 +67,7 @@ export class PatientManager {
 
   public updatePatientInfo(pzId: number, residenza: Pick<PatientAdmission, 'residenza'>) {
     this.#http
-      .patch<APIResponse<PatientAdmissionRes>>(`${environment.apiUrl}/patients/${pzId}`, residenza)
+      .patch<APIResponse<PatientAdmissionRes>>(`api/patients/${pzId}`, residenza)
       .subscribe({
         next: (res) => {
           this.#router.navigate([`/lista-pz`]);
@@ -162,6 +164,26 @@ export class PatientManager {
   }
   
   public selectPatient(paziente: PazienteDTO) {
+    this.attivaNuovoPaziente.set(false);
     this.pazienteSelezionato.set(paziente);
+    this.apriForm.set(true);
+
+    this.#router.navigate(['/accettazione-pz'])
+  }
+
+  public apriFormPaziente (datiRicerca?: { nome?: string, cognome?: string, cf?: string, dataNascita?: string }) {
+    this.attivaNuovoPaziente.set(true);
+
+    this.pazienteSelezionato.set({
+      id: 0,
+      nome: datiRicerca?.nome || '',
+      cognome: datiRicerca?.cognome || '',
+      codiceFiscale: datiRicerca?.cf || '',
+      dataNascita: datiRicerca?.dataNascita || '',
+      sex: ''
+    });
+
+    this.apriForm.set(true);
+    this.#router.navigate(['/accettazione-pz'])
   }
 }

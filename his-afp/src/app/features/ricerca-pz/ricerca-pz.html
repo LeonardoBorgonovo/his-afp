@@ -87,7 +87,7 @@
         <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
           <h3 style="color: #10b981; font-size: 1.2rem; font-weight: 600; margin: 0 0 1rem 0;">Corrispondenze Trovate in Archivio</h3>
           
-          <p-table [value]="patientManager.risultatiRicerca()" responsiveLayout="scroll">
+          <p-table [value]="patientManager.risultatiRicerca()">
             <ng-template pTemplate="header">
               <tr>
                 <th style="color: #4b5563; font-weight: 600; background-color: #f9fafb; padding: 1rem;">Cognome e Nome</th>
@@ -126,9 +126,14 @@
           <button pButton 
                   label="Nuovo Paziente" 
                   icon="pi pi-user-plus" 
-                  class="p-button-raised"
+                  class="p-button-raised p-button-success"
                   style="padding: 0.75rem 2rem; font-weight: 600;"
-                  (click)="patientManager.attivaNuovoPaziente()">
+                  (click)="patientManager.apriFormPaziente({
+                    nome: nomeInput.value,
+                    cognome: cognomeInput.value,
+                    dataNascita: dataNascitaInput.value,
+                    cf: cfInput.value
+                  })">
           </button>
         </div>
       }
