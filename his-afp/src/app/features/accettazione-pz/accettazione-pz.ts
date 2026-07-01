@@ -111,16 +111,22 @@ export class AccettazionePz {
     }
   }
 
+  resetSanitaria() {
+    console.log('RESET SANITARIA');
+
+    this.paziente.get('sanitaria')?.reset();
+
+    console.log(this.paziente.getRawValue());
+  }
+
   onSubmit() {
     if (this.paziente.valid) {
       const formValue = this.paziente.getRawValue();
       
-      // Gestione della data convertita in stringa YYYY-MM-DD
       let dataStringa = typeof formValue.anagrafica.dataNascita === 'string' 
         ? formValue.anagrafica.dataNascita 
         : formValue.anagrafica.dataNascita?.toISOString().split('T')[0] || '';
 
-      // Questo payload riflette esattamente le aspettative di insertNewAdmissionFn
       const payload = {
         anagrafica: {
           nome: formValue.anagrafica.nome ?? '',
