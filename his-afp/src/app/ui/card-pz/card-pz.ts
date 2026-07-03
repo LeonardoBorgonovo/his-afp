@@ -28,8 +28,8 @@ export class CardPz {
   public changeStatusPaziente(){
     this.dialogService.open(CambiaStatusPz, {
       header: 'Cambia Stato',
-      width: '20rem',
-      height: '30rem',
+      width: '40rem',
+      height: '25rem',
       data:{
         id: this.paziente().id,
         stato: this.paziente().stato
@@ -37,7 +37,7 @@ export class CardPz {
     });
   }
 
-  getSeverity(stato: string){
+  public getSeverity(stato: string){
     switch(stato) {
       case 'ATT':
         return 'secondary';
@@ -59,11 +59,11 @@ export class CardPz {
     }
   }
 
-  setBorder() {
+  public setBorder() {
     return this.borderTop() ? 'border-t-8' : 'border-b-8';
   }
 
-  setColoreDiStato() {
+  public setColoreDiStato() {
     switch (this.paziente().codiceColore) {
       case 'ROSSO':
         return 'border-red-600';

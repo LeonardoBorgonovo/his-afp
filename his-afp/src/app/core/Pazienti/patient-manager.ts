@@ -3,6 +3,7 @@ import { PatientAdmission, PatientAdmissionRes, Paziente, PazienteDTO } from './
 import { HttpClient } from '@angular/common/http';
 import { APIResponse } from '../models/APIResponse.model';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -186,5 +187,11 @@ export class PatientManager {
 
     this.apriForm.set(true);
     this.#router.navigate(['/accettazione-pz'])
+  }
+
+  public changePatientStatus(id: number, stato: string) {
+    return this.#http
+      .patch<APIResponse<PazienteDTO>>(`/api/admissions/${id}/status`, {
+        nuovoStato: stato});
   }
 }
