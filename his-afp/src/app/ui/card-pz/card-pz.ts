@@ -29,7 +29,7 @@ export class CardPz {
     this.dialogService.open(CambiaStatusPz, {
       header: 'Cambia Stato',
       width: '40rem',
-      height: '25rem',
+      height: '30rem',
       data:{
         id: this.paziente().id,
         stato: this.paziente().stato

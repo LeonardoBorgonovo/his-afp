@@ -47,7 +47,7 @@ export class CambiaStatusPz {
             summary: 'OK',
             detail: 'Stato aggiornato!'
           });
-          this.ref.close();
+          this.ref.close(true);
         },
         error: (err) => {
           this.messageService.add({
