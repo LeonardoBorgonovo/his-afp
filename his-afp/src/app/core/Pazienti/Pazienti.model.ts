@@ -4,6 +4,7 @@ export interface Paziente {
   cognome: string; // cognome
   braccialetto: string; // braccialetto
   eta: number; // da calcolare con dataNascita
+  stato: string; // stato 
   codiceColore: string; // coloreCode
   note: string; // noteTriage
   patologia: string; // patologiaCode

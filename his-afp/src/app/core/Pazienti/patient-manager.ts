@@ -2,7 +2,6 @@ import { inject, Injectable, signal } from '@angular/core';
 import { PatientAdmission, PatientAdmissionRes, Paziente, PazienteDTO } from './Pazienti.model';
 import { HttpClient } from '@angular/common/http';
 import { APIResponse } from '../models/APIResponse.model';
-import { environment } from '../../../environments/environment';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -89,6 +88,7 @@ export class PatientManager {
       note: pz.noteTriage,
       patologia: pz.patologiaCode,
       eta: this.calcolaEta(pz.dataNascita),
+      stato: pz.stato,
     };
   }
 
