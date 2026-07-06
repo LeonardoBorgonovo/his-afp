@@ -35,6 +35,15 @@ export interface PazienteDTO {
   provincia: string;
 }
 
+export interface PazienteDimesso {
+  braccialetto: string;
+  nome: string;
+  cognome: string;
+  dataOraIngresso: Date;
+  dataOraDimissione: Date;
+  stato: string;
+}
+
 export interface PatientAdmission {
   anagrafica: {
     nome: string;

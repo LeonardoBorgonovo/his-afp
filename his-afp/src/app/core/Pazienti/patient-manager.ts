@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { PatientAdmission, PatientAdmissionRes, Paziente, PazienteDTO } from './Pazienti.model';
+import { PatientAdmission, PatientAdmissionRes, Paziente, PazienteDimesso, PazienteDTO } from './Pazienti.model';
 import { HttpClient } from '@angular/common/http';
 import { APIResponse } from '../models/APIResponse.model';
 import { Router } from '@angular/router';
@@ -15,6 +15,8 @@ export class PatientManager {
   #listaPZ = signal<Paziente[]>([]);
   #listaPZFiltered = signal<Paziente[]>(this.#listaPZ());
   listaPZ = this.#listaPZFiltered.asReadonly();
+  #listaDimissioni = signal<PazienteDimesso[]>([]);
+  readonly listaDimissioni = this.#listaDimissioni.asReadonly();
   
   risultatiRicerca = signal<PazienteDTO[]>([]);
   pazienteSelezionato = signal<Partial<PazienteDTO> | null>(null);
@@ -193,5 +195,18 @@ export class PatientManager {
     return this.#http
       .patch<APIResponse<PazienteDTO>>(`/api/admissions/${id}/status`, {
         nuovoStato: stato});
+  }
+
+  public fetchDimissioni() {
+    this.#http
+      .get<APIResponse<PazienteDimesso[]>>(`/api/admissions/reports/discharged`)
+      .subscribe({
+        next: (res) => {
+          this.#listaDimissioni.set(res.data);
+        },
+        error: (err) => {
+          console.error("Errore nella raccolta delle dimissioni: ", err)
+        }
+      });
   }
 }

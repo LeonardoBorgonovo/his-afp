@@ -31,6 +31,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/personale-ps/personale-ps').then((m) => m.PersonalePs),
   },
   {
+    path: 'dimissioni-pz',
+    loadComponent: () => import('./features/dimissioni-pz/dimissioni-pz').then((m) => m.DimissioniPz),
+  },
+  {
     path: 'stato-servizi',
     loadComponent: () =>
       import('./features/stato-servizi/stato-servizi').then((m) => m.StatoServizi),
